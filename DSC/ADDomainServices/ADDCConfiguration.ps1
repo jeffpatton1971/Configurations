@@ -7,6 +7,14 @@
             This configuration configures the server as a Domain Controller
         .PARAMETER ComputerName
             Netbios name of the server
+        .PARAMETER DNS
+            If present enable DNS for this server
+        .PARAMETER GPMC
+            If present enable GPMC for this server
+        .PARAMETER RSATTools
+            If present enable RSAT tools for this server
+        .PARAMETER SMB1
+            if present enable SMB version 1
         .PARAMETER NTDSPath
             The path to the NTDS folder
         .PARAMETER LOGSPath
@@ -19,6 +27,10 @@
     [Parameter(Mandatory=$true)]
     [ValidateNotNullOrEmpty()]
     [string]$ComputerName,
+    [switch]$DNS,
+    [switch]$GPMC,
+    [switch]$RSATTools,
+    [switch]$SMB1,
     [Parameter(Mandatory=$false)]
     [ValidateNotNullOrEmpty()]
     [string]$NTDSPath,
@@ -31,6 +43,171 @@
     )
     Node $ComputerName
     {
+        WindowsFeature ADDomainServices
+        {
+            Name = "AD-Domain-Services"
+            Ensure = "Present"
+            }
+        if ($DNS)
+        {
+            WindowsFeature DNS
+            {
+                Name = "DNS"
+                Ensure = "Present"
+                }
+            if ($RSATTools)
+            {
+                WindowsFeature dnsRSAT
+                {
+                    Name = "RSAT"
+                    Ensure = "Present"
+                    }
+                WindowsFeature dnsRSATRoleTools
+                {
+                    Name = "RSAT-Role-Tools"
+                    ensure = "Present"
+                    }
+                WindowsFeature RSATDNSServer
+                {
+                    Name = "RSAT-DNS-Server"
+                    Ensure = "Present"
+                    }
+                }
+            else
+            {
+                WindowsFeature dnsRSAT
+                {
+                    Name = "RSAT"
+                    Ensure = "Absent"
+                    }
+                WindowsFeature dnsRSATRoleTools
+                {
+                    Name = "RSAT-Role-Tools"
+                    ensure = "Absent"
+                    }
+                WindowsFeature RSATDNSServer
+                {
+                    Name = "RSAT-DNS-Server"
+                    Ensure = "Absent"
+                    }
+                }
+            }
+        else
+        {
+            WindowsFeature DNS
+            {
+                Name = "DNS"
+                Ensure = "Absent"
+                }
+            }
+        if ($GPMC)
+        {
+            WindowsFeature GPMC
+            {
+                Name = "GPMC"
+                Ensure = "Present"
+                }
+            }
+        else
+        {
+            WindowsFeature GPMC
+            {
+                Name = "GPMC"
+                Ensure = "Absent"
+                }
+            }
+        if ($RSATTools)
+        {
+            WindowsFeature RSAT
+            {
+                Name = "RSAT"
+                Ensure = "Present"
+                }
+            WindowsFeature RSATRoleTools
+            {
+                Name = "RSAT-Role-Tools"
+                Ensure = "Present"
+                }
+            WindowsFeature RSATADTools
+            {
+                Name = "RSAT-AD-Tools"
+                Ensure = "Present"
+                }
+            WindowsFeature RSATADPowerShell
+            {
+                Name = "RSAT-AD-PowerShell"
+                Ensure = "Present"
+                }
+            WindowsFeature RSATADDS
+            {
+                Name = "RSAT-ADDS"
+                Ensure = "Present"
+                }
+            WindowsFeature RSATADAdminCenter
+            {
+                Name = "RSAT-AD-AdminCenter"
+                Ensure = "Present"
+                }
+            WindowsFeature RSATADDSTools
+            {
+                Name = "RSAT-ADDS-Tools"
+                Ensure = "Present"
+                }
+            }
+        else
+        {
+            WindowsFeature RSAT
+            {
+                Name = "RSAT"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATRoleTools
+            {
+                Name = "RSAT-Role-Tools"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATADTools
+            {
+                Name = "RSAT-AD-Tools"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATADPowerShell
+            {
+                Name = "RSAT-AD-PowerShell"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATADDS
+            {
+                Name = "RSAT-ADDS"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATADAdminCenter
+            {
+                Name = "RSAT-AD-AdminCenter"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATADDSTools
+            {
+                Name = "RSAT-ADDS-Tools"
+                Ensure = "Absent"
+                }
+            }
+        if ($SMB1)
+        {
+            WindowsFeature FSSMB1
+            {
+                Name = "FS-SMB1"
+                Ensure = "Present"
+                }
+            }
+        else
+        {
+            WindowsFeature FSSMB1
+            {
+                Name = "FS-SMB1"
+                Ensure = "Absent"
+                }
+            }
         if ($NTDSPath)
         {
             File NTDSPath
@@ -61,16 +238,6 @@
         #
         #region Installed Windows Features
         #
-        WindowsFeature ADDomainServices
-        {
-            Name = "AD-Domain-Services"
-            Ensure = "Present"
-            }
-        WindowsFeature DNS
-        {
-            Name = "DNS"
-            Ensure = "Present"
-            }
         WindowsFeature FileAndStorageServices
         {
             Name = "FileAndStorage-Services"
@@ -89,21 +256,6 @@
         WindowsFeature StorageServices
         {
             Name = "Storage-Services"
-            Ensure = "Present"
-            }
-        WindowsFeature WebServer
-        {
-            Name = "Web-Server"
-            Ensure = "Present"
-            }
-        WindowsFeature WebMgmtTools
-        {
-            Name = "Web-Mgmt-Tools"
-            Ensure = "Present"
-            }
-        WindowsFeature WebMgmtConsole
-        {
-            Name = "Web-Mgmt-Console"
             Ensure = "Present"
             }
         WindowsFeature NETFrameworkFeatures
@@ -134,71 +286,6 @@
         WindowsFeature NETWCFTCPPortSharing45
         {
             Name = "NET-WCF-TCP-PortSharing45"
-            Ensure = "Present"
-            }
-        WindowsFeature GPMC
-        {
-            Name = "GPMC"
-            Ensure = "Present"
-            }
-        WindowsFeature RSAT
-        {
-            Name = "RSAT"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATRoleTools
-        {
-            Name = "RSAT-Role-Tools"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATADTools
-        {
-            Name = "RSAT-AD-Tools"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATADPowerShell
-        {
-            Name = "RSAT-AD-PowerShell"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATADDS
-        {
-            Name = "RSAT-ADDS"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATADAdminCenter
-        {
-            Name = "RSAT-AD-AdminCenter"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATADDSTools
-        {
-            Name = "RSAT-ADDS-Tools"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATHyperVTools
-        {
-            Name = "RSAT-Hyper-V-Tools"
-            Ensure = "Present"
-            }
-        WindowsFeature HyperVTools
-        {
-            Name = "Hyper-V-Tools"
-            Ensure = "Present"
-            }
-        WindowsFeature HyperVPowerShell
-        {
-            Name = "Hyper-V-PowerShell"
-            Ensure = "Present"
-            }
-        WindowsFeature RSATDNSServer
-        {
-            Name = "RSAT-DNS-Server"
-            Ensure = "Present"
-            }
-        WindowsFeature FSSMB1
-        {
-            Name = "FS-SMB1"
             Ensure = "Present"
             }
         WindowsFeature UserInterfacesInfra
@@ -432,6 +519,21 @@
             Name = "FS-SyncShareService"
             Ensure = "Absent"
             }
+        WindowsFeature RSATHyperVTools
+        {
+            Name = "RSAT-Hyper-V-Tools"
+            Ensure = "Absent"
+            }
+        WindowsFeature HyperVTools
+        {
+            Name = "Hyper-V-Tools"
+            Ensure = "Absent"
+            }
+        WindowsFeature HyperVPowerShell
+        {
+            Name = "Hyper-V-PowerShell"
+            Ensure = "Absent"
+            }
         WindowsFeature HyperV
         {
             Name = "Hyper-V"
@@ -540,6 +642,21 @@
         WindowsFeature VolumeActivation
         {
             Name = "VolumeActivation"
+            Ensure = "Absent"
+            }
+        WindowsFeature WebServer
+        {
+            Name = "Web-Server"
+            Ensure = "Absent"
+            }
+        WindowsFeature WebMgmtTools
+        {
+            Name = "Web-Mgmt-Tools"
+            Ensure = "Absent"
+            }
+        WindowsFeature WebMgmtConsole
+        {
+            Name = "Web-Mgmt-Console"
             Ensure = "Absent"
             }
         WindowsFeature WebWebServer
