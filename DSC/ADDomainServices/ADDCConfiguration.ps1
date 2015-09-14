@@ -55,42 +55,6 @@
                 Name = "DNS"
                 Ensure = "Present"
                 }
-            if ($RSATTools)
-            {
-                WindowsFeature dnsRSAT
-                {
-                    Name = "RSAT"
-                    Ensure = "Present"
-                    }
-                WindowsFeature dnsRSATRoleTools
-                {
-                    Name = "RSAT-Role-Tools"
-                    ensure = "Present"
-                    }
-                WindowsFeature RSATDNSServer
-                {
-                    Name = "RSAT-DNS-Server"
-                    Ensure = "Present"
-                    }
-                }
-            else
-            {
-                WindowsFeature dnsRSAT
-                {
-                    Name = "RSAT"
-                    Ensure = "Absent"
-                    }
-                WindowsFeature dnsRSATRoleTools
-                {
-                    Name = "RSAT-Role-Tools"
-                    ensure = "Absent"
-                    }
-                WindowsFeature RSATDNSServer
-                {
-                    Name = "RSAT-DNS-Server"
-                    Ensure = "Absent"
-                    }
-                }
             }
         else
         {
@@ -153,6 +117,11 @@
                 Name = "RSAT-ADDS-Tools"
                 Ensure = "Present"
                 }
+            WindowsFeature RSATDNSServer
+            {
+                Name = "RSAT-DNS-Server"
+                Ensure = "Present"
+                }
             }
         else
         {
@@ -189,6 +158,11 @@
             WindowsFeature RSATADDSTools
             {
                 Name = "RSAT-ADDS-Tools"
+                Ensure = "Absent"
+                }
+            WindowsFeature RSATDNSServer
+            {
+                Name = "RSAT-DNS-Server"
                 Ensure = "Absent"
                 }
             }
